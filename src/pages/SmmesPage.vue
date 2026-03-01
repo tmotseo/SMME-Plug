@@ -95,10 +95,102 @@ const listedCompanies = [
   },
   {
     name: 'Rage In Pretoria (Pty) Ltd',
-    logo: 'https://smmesplug.co.za/wp-content/uploads/elementor/thumbs/Rage-rjecqw27qxo4spwmuc0606zj0p0hj6d97ax4jqth28.png',
-    services: ['Comprehension Landscaping Solutions', 'Construction and Maintenance', 'Environmental Services'],
+    logo: 'https://smmesplug.co.za/wp-content/uploads/elementor/thumbs/Rage-rjecqw27qxo8w1dhpjqnpm5j3gpbscrhq00oyc4gvc.png',
+    services: [
+      'Comprehension Landscaping Solutions',
+      'Construction and Maintenance',
+      'Environmental Services',
+      'Office Essentials',
+      'Healthcare Solutions',
+      'Supply Chains Services',
+      'Aesthetics Enhancement and Energy Solutions',
+    ],
+  },
+  {
+    name: 'Morare Construction',
+    logo: 'https://smmesplug.co.za/wp-content/uploads/elementor/thumbs/BpKeJ924L8KH-Turquoise-And-Orange-Modern-Minimalist-Home-For-Sale-Flyer11-2-rjscdutrg1lq2oc5wkw4tgltq10l9x17xzsyu149sk.jpg',
+    services: [
+      'VIP Toilets and Mobile Fridge Hire',
+      'Infrastructure Development',
+      'General Building',
+      'Civil Works',
+      'Plumbing',
+      'Electrical',
+      'Horticulture',
+    ],
+  },
+  {
+    name: 'Amavuso Projects Primary co-Operative Ltd',
+    logo: 'https://smmesplug.co.za/wp-content/uploads/elementor/thumbs/1bpE8Fl2MUgG-LOGO-scaled-rjsdixdvgifvu906h0s6btkpurjo1gnujgzuvcwdbs.jpg',
+    services: ['Construction', 'Supplier', 'Grasscutting', 'Transport', 'Catering', 'Cleaning'],
+  },
+  {
+    name: 'Polimayethu Projects',
+    logo: 'https://smmesplug.co.za/wp-content/uploads/elementor/thumbs/cropped-Smmeplug1-scaled-1-r72gpuljfs74csdyvf8avs16zmlr2kf1qe23q7x38w.png',
+    services: [
+      'Air Conditioning Installation and repair',
+      'Contraction Services',
+      'Waterproofing',
+      'Plumbing Contractor',
+      'Electrical Contractor',
+    ],
+  },
+  {
+    name: 'Matcan pty Ltd',
+    logo: 'https://smmesplug.co.za/wp-content/uploads/elementor/thumbs/c1IBXnmcBOtd-file_00000000838871f5b68da3f769c9e28b-rjsfcn9new9wglyek6bs92xqx0z6b9p3lu6t76l6v8.png',
+    services: ['Maintenance & repairs', 'Transportation services', 'Supply and deliveries'],
+  },
+  {
+    name: 'Sago Universal',
+    logo: 'https://smmesplug.co.za/wp-content/uploads/elementor/thumbs/Zw13ma08JknS-Sago-Universal-Logo-rjsfrx58gz6t9gyyo3m9tuxejl85ryxfhhh7jxwdgw.png',
+    services: ['Recruitment', 'Labour Broker Services'],
+  },
+  {
+    name: 'The Ease Club (Pty) Ltd',
+    logo: 'https://smmesplug.co.za/wp-content/uploads/elementor/thumbs/CwZUaue9Ysrb-image0-rjsfydbdd20gs6efpkddvll95lwk7fxrxcyshedn2c.png',
+    services: ['Pest Control', 'Carpentry', 'Maintenance'],
+  },
+  {
+    name: 'Ndimam supply and projects',
+    logo: 'https://smmesplug.co.za/wp-content/uploads/elementor/thumbs/cropped-Smmeplug1-scaled-1-r72gpuljfs74csdyvf8avs16zmlr2kf1qe23q7x38w.png',
+    services: [
+      'Construction',
+      'Grass Cutting',
+      'Land scaping',
+      'Plumbing Contractor',
+      'Catering Services',
+      'Cleaning Services',
+    ],
+  },
+  {
+    name: 'Tshwantshetso pty Ltd',
+    logo: 'https://smmesplug.co.za/wp-content/uploads/elementor/thumbs/yTPV3CKRAtOp-Screenshot_20250908_214806_All-Document-Reader-rjsgm8fuvmohi402x9v5bv7k2efmi7hbm4osx0cb6o.jpg',
+    services: [
+      'Electrical installation',
+      'Maintenance',
+      'Wiring from domestic to industrial',
+      'All electrical works from LV to HV',
+      'Generator Installations and maintenance',
+    ],
   },
 ]
+
+const smmeProfileLinks = {
+  'Othaniel Consulting and Projects': 'https://smmesplug.co.za/Profiles/othaniel.pdf',
+  'Lethajako Group': 'https://smmesplug.co.za/Profiles/ltjk.pdf',
+  'BAPELA SOLUTIONS PTY (LTD)': 'https://smmesplug.co.za/Profiles/bapela.pdf',
+  'CKN Security Services': 'https://smmesplug.co.za/Profiles/cknProfile.pdf',
+  'Safe Riderz Group': 'https://smmesplug.co.za/Profiles/saferiders.pdf',
+  'Braintree Construction': 'https://smmesplug.co.za/Profiles/brain.pdf',
+  'khopelas general trading': 'https://smmesplug.co.za/Profiles/khopelas.pdf',
+  'Sanracle PTY LTD': 'https://smmesplug.co.za/Profiles/sanracle.pdf',
+  'Morwasehla Attorneys': 'https://smmesplug.co.za/Profiles/morwasehla.pdf',
+  'Vutomi PTY LTD': 'https://smmesplug.co.za/Profiles/vutomim.pdf',
+  'Silof Projects': 'https://smmesplug.co.za/Profiles/Silof.pdf',
+  'Rage In Pretoria (Pty) Ltd': 'https://smmesplug.co.za/Profiles/Rage.pdf',
+}
+
+const getProfileUrl = (companyName) => smmeProfileLinks[companyName] ?? 'https://smmesplug.co.za/smmes/'
 
 const approvedSmmes = computed(() => store.approvedUsersByType('smmes'))
 
@@ -202,6 +294,15 @@ const submitForm = async () => {
         <ul class="company-services">
           <li v-for="service in company.services" :key="`${company.name}-${service}`">{{ service }}</li>
         </ul>
+        <a
+          class="btn btn-secondary"
+          :href="getProfileUrl(company.name)"
+          target="_blank"
+          rel="noreferrer"
+          style="margin-top: 0.7rem; width: 100%; text-align: center"
+        >
+          View Profile
+        </a>
       </article>
     </div>
   </section>
