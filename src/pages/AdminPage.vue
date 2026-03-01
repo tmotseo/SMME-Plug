@@ -3,10 +3,11 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRegistrationStore } from '../stores/registrationStore'
 
 const store = useRegistrationStore()
+const ADMIN_AUTH_KEY = 'smme_admin_logged_in'
 
 const adminPasscode = 'admin123'
 const passcodeInput = ref('')
-const unlocked = ref(false)
+const unlocked = ref(localStorage.getItem(ADMIN_AUTH_KEY) === 'true')
 
 const typeFilter = ref('all')
 const statusFilter = ref('all')
@@ -99,6 +100,8 @@ watch(
 const unlockAdmin = () => {
   unlocked.value = passcodeInput.value === adminPasscode
   if (unlocked.value) {
+    localStorage.setItem(ADMIN_AUTH_KEY, 'true')
+    window.dispatchEvent(new Event('admin-auth-changed'))
     store.loadUsers()
   }
 }
@@ -157,13 +160,16 @@ const statusDotClass = (status) => {
 }
 
 onMounted(() => {
-  if (unlocked.value) store.loadUsers()
+  if (unlocked.value) {
+    localStorage.setItem(ADMIN_AUTH_KEY, 'true')
+    store.loadUsers()
+  }
 })
 </script>
 
 <template>
   <section class="w-full rounded-[28px] bg-[#f0f0f0] p-4 sm:p-6 lg:p-7">
-    <div v-if="!unlocked" class="mx-auto max-w-xl rounded-3xl border border-black/5 bg-white p-8 shadow-sm">
+    <div v-if="!unlocked" class="mx-auto max-w-xl rounded-xl border border-black/5 bg-white p-8 shadow-sm">
       <p class="text-xs font-semibold tracking-[0.12em] text-violet-500">ADMIN ACCESS</p>
       <h2 class="mt-2 text-2xl font-bold text-slate-900">Registration Management Console</h2>
       <p class="mt-2 text-sm text-slate-500">Enter passcode to continue. Demo passcode: admin123</p>
@@ -185,8 +191,8 @@ onMounted(() => {
     </div>
 
     <div v-else class="grid gap-8 xl:grid-cols-[260px_minmax(0,1fr)]">
-      <aside class="rounded-[30px] bg-white p-6 shadow-sm">
-        <div class="rounded-3xl bg-gradient-to-br from-[#121f39] to-[#213c6d] p-6 text-white">
+      <aside class="rounded-xl bg-white p-6 shadow-sm">
+        <div class="rounded-lg bg-gradient-to-br from-[#121f39] to-[#213c6d] p-6 text-white">
           <p class="text-xs tracking-[0.15em] text-sky-200">SMME PLUG</p>
           <h2 class="mt-2 text-xl font-semibold">Admin Dashboard</h2>
           <p class="mt-1 text-xs text-sky-100/90">Manage registrations and approvals</p>
@@ -215,14 +221,14 @@ onMounted(() => {
           </li>
         </ul>
 
-        <div class="mt-6 rounded-2xl bg-slate-50 p-4">
+        <div class="mt-6 rounded-lg bg-slate-50 p-4">
           <p class="text-xs text-slate-500">Active Registrations</p>
           <p class="mt-1 text-2xl font-bold text-slate-900">{{ store.stats.value.total }}</p>
         </div>
       </aside>
 
       <div class="space-y-8">
-        <header class="rounded-3xl bg-white p-6 shadow-sm">
+        <header class="rounded-xl bg-white p-6 shadow-sm">
           <p class="text-xs font-semibold tracking-[0.12em] text-violet-500">ADMIN PANEL</p>
           <h1 class="mt-2 text-2xl font-bold text-slate-900">Registration Management Console</h1>
           <p class="mt-2 text-sm text-slate-500">
@@ -234,7 +240,7 @@ onMounted(() => {
           <article
             v-for="tile in dashboardTiles"
             :key="tile.key"
-            class="relative min-h-[128px] overflow-hidden rounded-3xl bg-white p-6 shadow-sm"
+            class="relative min-h-[128px] overflow-hidden rounded-xl bg-white p-6 shadow-sm"
           >
             <div
               class="pointer-events-none absolute -right-7 -top-7 h-24 w-24 rotate-12 rounded-3xl bg-gradient-to-br opacity-20"
@@ -246,7 +252,7 @@ onMounted(() => {
         </section>
 
         <section class="grid gap-8 lg:grid-cols-3">
-          <article class="rounded-3xl bg-white p-6 shadow-sm lg:col-span-2">
+          <article class="rounded-xl bg-white p-6 shadow-sm lg:col-span-2">
             <h3 class="text-base font-bold text-slate-900">Registration Overview</h3>
             <div class="mt-5 space-y-4">
               <div>
@@ -279,18 +285,18 @@ onMounted(() => {
             </div>
           </article>
 
-          <article class="rounded-3xl bg-white p-6 shadow-sm">
+          <article class="rounded-xl bg-white p-6 shadow-sm">
             <h3 class="text-base font-bold text-slate-900">User Type Totals</h3>
             <div class="mt-4 space-y-3 text-sm">
-              <div class="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2">
+              <div class="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2">
                 <span class="text-slate-600">SMMEs</span>
                 <strong class="text-slate-900">{{ store.stats.value.smmes }}</strong>
               </div>
-              <div class="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2">
+              <div class="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2">
                 <span class="text-slate-600">Professionals</span>
                 <strong class="text-slate-900">{{ store.stats.value.professionals }}</strong>
               </div>
-              <div class="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2">
+              <div class="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2">
                 <span class="text-slate-600">Jobseekers</span>
                 <strong class="text-slate-900">{{ store.stats.value.jobseekers }}</strong>
               </div>
@@ -299,11 +305,11 @@ onMounted(() => {
         </section>
 
         <section class="grid gap-8 2xl:grid-cols-[1.15fr_1fr]">
-          <article class="rounded-3xl bg-white p-6 shadow-sm">
+          <article class="rounded-xl bg-white p-6 shadow-sm">
             <div class="flex flex-col gap-3 sm:flex-row">
               <select
                 v-model="typeFilter"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-violet-200 focus:ring"
+                class="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-violet-200 focus:ring"
               >
                 <option value="all">All Types</option>
                 <option value="smmes">SMMEs</option>
@@ -312,7 +318,7 @@ onMounted(() => {
               </select>
               <select
                 v-model="statusFilter"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-violet-200 focus:ring"
+                class="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-violet-200 focus:ring"
               >
                 <option value="all">All Status</option>
                 <option value="pending">Pending</option>
@@ -323,7 +329,7 @@ onMounted(() => {
                 v-model="searchTerm"
                 type="text"
                 placeholder="Search name/email/phone"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-violet-200 focus:ring"
+                class="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-violet-200 focus:ring"
               />
             </div>
 
@@ -333,7 +339,7 @@ onMounted(() => {
                 v-for="user in filteredUsers"
                 :key="user.id"
                 type="button"
-                class="w-full rounded-2xl border px-4 py-3 text-left transition"
+                class="w-full rounded-lg border px-4 py-3 text-left transition"
                 :class="
                   selectedId === user.id
                     ? 'border-violet-300 bg-violet-50'
@@ -353,15 +359,15 @@ onMounted(() => {
                 </div>
                 <div class="mt-1 text-xs text-slate-500">{{ user.type }} · {{ user.phone || user.email }}</div>
               </button>
-              <p v-if="!filteredUsers.length" class="rounded-xl bg-slate-50 p-3 text-sm text-slate-500">
+              <p v-if="!filteredUsers.length" class="rounded-md bg-slate-50 p-3 text-sm text-slate-500">
                 No applications match your filters.
               </p>
             </div>
           </article>
 
-          <article class="rounded-3xl bg-white p-6 shadow-sm">
+          <article class="rounded-xl bg-white p-6 shadow-sm">
             <h3 class="text-base font-bold text-slate-900">User Profile</h3>
-            <p v-if="!selectedUser" class="mt-3 rounded-xl bg-slate-50 p-3 text-sm text-slate-500">
+            <p v-if="!selectedUser" class="mt-3 rounded-md bg-slate-50 p-3 text-sm text-slate-500">
               Select an application from the list to manage it.
             </p>
 
@@ -369,21 +375,21 @@ onMounted(() => {
               <div class="mt-5 flex flex-wrap gap-2.5">
                 <button
                   type="button"
-                  class="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700"
+                  class="rounded-md bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700"
                   @click="approve"
                 >
                   Approve
                 </button>
                 <button
                   type="button"
-                  class="rounded-xl bg-rose-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-rose-700"
+                  class="rounded-md bg-rose-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-rose-700"
                   @click="reject"
                 >
                   Reject
                 </button>
                 <button
                   type="button"
-                  class="rounded-xl bg-violet-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-violet-700"
+                  class="rounded-md bg-violet-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-violet-700"
                   @click="saveProfile"
                 >
                   Update Profile
@@ -418,7 +424,7 @@ onMounted(() => {
                 <input v-model="adminMessage" type="text" placeholder="Message to user" class="admin-input" />
                 <button
                   type="button"
-                  class="shrink-0 rounded-xl bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-700"
+                  class="shrink-0 rounded-md bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-700"
                   @click="sendMessage"
                 >
                   Send
@@ -426,13 +432,13 @@ onMounted(() => {
               </div>
 
               <div class="mt-5 space-y-2.5">
-                <p v-if="!selectedUser.messages.length" class="rounded-xl bg-slate-50 p-3 text-xs text-slate-500">
+                <p v-if="!selectedUser.messages.length" class="rounded-md bg-slate-50 p-3 text-xs text-slate-500">
                   No messages sent yet.
                 </p>
                 <article
                   v-for="msg in selectedUser.messages"
                   :key="msg.id"
-                  class="rounded-xl border border-slate-200 bg-slate-50 p-3"
+                  class="rounded-md border border-slate-200 bg-slate-50 p-3"
                 >
                   <strong class="text-xs text-slate-700">Admin</strong>
                   <p class="mt-1 text-sm text-slate-600">{{ msg.text }}</p>

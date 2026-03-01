@@ -1,8 +1,12 @@
 <script setup>
-import { ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const navOpen = ref(false)
 const logoError = ref(false)
+const ADMIN_AUTH_KEY = 'smme_admin_logged_in'
+const adminLoggedIn = ref(localStorage.getItem(ADMIN_AUTH_KEY) === 'true')
+const router = useRouter()
 
 const closeMenu = () => {
   navOpen.value = false
@@ -11,6 +15,28 @@ const closeMenu = () => {
 const onLogoError = () => {
   logoError.value = true
 }
+
+const refreshAdminAuth = () => {
+  adminLoggedIn.value = localStorage.getItem(ADMIN_AUTH_KEY) === 'true'
+}
+
+const logoutAdmin = async () => {
+  localStorage.removeItem(ADMIN_AUTH_KEY)
+  adminLoggedIn.value = false
+  closeMenu()
+  window.dispatchEvent(new Event('admin-auth-changed'))
+  await router.push('/admin')
+}
+
+onMounted(() => {
+  window.addEventListener('storage', refreshAdminAuth)
+  window.addEventListener('admin-auth-changed', refreshAdminAuth)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('storage', refreshAdminAuth)
+  window.removeEventListener('admin-auth-changed', refreshAdminAuth)
+})
 </script>
 
 <template>
@@ -29,11 +55,16 @@ const onLogoError = () => {
       </button>
 
       <nav class="main-nav" :class="{ open: navOpen }">
-        <router-link class="nav-link" to="/" @click="closeMenu">Home</router-link>
-        <router-link class="nav-link" to="/smmes" @click="closeMenu">SMMEs</router-link>
-        <router-link class="nav-link" to="/professionals" @click="closeMenu">Professionals</router-link>
-        <router-link class="nav-link" to="/jobseekers" @click="closeMenu">Jobseekers</router-link>
-        <router-link class="nav-link" to="/admin" @click="closeMenu">Admin</router-link>
+        <template v-if="adminLoggedIn">
+          <button class="nav-link logout-link" type="button" @click="logoutAdmin">Logout</button>
+        </template>
+        <template v-else>
+          <router-link class="nav-link" to="/" @click="closeMenu">Home</router-link>
+          <router-link class="nav-link" to="/smmes" @click="closeMenu">SMMEs</router-link>
+          <router-link class="nav-link" to="/professionals" @click="closeMenu">Professionals</router-link>
+          <router-link class="nav-link" to="/jobseekers" @click="closeMenu">Jobseekers</router-link>
+          <router-link class="nav-link" to="/admin" @click="closeMenu">Admin</router-link>
+        </template>
       </nav>
     </div>
   </header>
