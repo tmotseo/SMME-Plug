@@ -184,7 +184,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <div v-else class="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)]">
+    <div v-else class="grid gap-8 xl:grid-cols-[260px_minmax(0,1fr)]">
       <aside class="rounded-[30px] bg-white p-6 shadow-sm">
         <div class="rounded-3xl bg-gradient-to-br from-[#121f39] to-[#213c6d] p-6 text-white">
           <p class="text-xs tracking-[0.15em] text-sky-200">SMME PLUG</p>
@@ -221,7 +221,7 @@ onMounted(() => {
         </div>
       </aside>
 
-      <div class="space-y-6">
+      <div class="space-y-8">
         <header class="rounded-3xl bg-white p-6 shadow-sm">
           <p class="text-xs font-semibold tracking-[0.12em] text-violet-500">ADMIN PANEL</p>
           <h1 class="mt-2 text-2xl font-bold text-slate-900">Registration Management Console</h1>
@@ -230,7 +230,7 @@ onMounted(() => {
           </p>
         </header>
 
-        <section class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        <section class="grid gap-7 sm:grid-cols-2 xl:grid-cols-4">
           <article
             v-for="tile in dashboardTiles"
             :key="tile.key"
@@ -245,7 +245,7 @@ onMounted(() => {
           </article>
         </section>
 
-        <section class="grid gap-6 lg:grid-cols-3">
+        <section class="grid gap-8 lg:grid-cols-3">
           <article class="rounded-3xl bg-white p-6 shadow-sm lg:col-span-2">
             <h3 class="text-base font-bold text-slate-900">Registration Overview</h3>
             <div class="mt-5 space-y-4">
@@ -298,7 +298,7 @@ onMounted(() => {
           </article>
         </section>
 
-        <section class="grid gap-6 2xl:grid-cols-[1.15fr_1fr]">
+        <section class="grid gap-8 2xl:grid-cols-[1.15fr_1fr]">
           <article class="rounded-3xl bg-white p-6 shadow-sm">
             <div class="flex flex-col gap-3 sm:flex-row">
               <select
