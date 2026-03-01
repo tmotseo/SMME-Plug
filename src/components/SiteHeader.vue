@@ -2,9 +2,14 @@
 import { ref } from 'vue'
 
 const navOpen = ref(false)
+const logoError = ref(false)
 
 const closeMenu = () => {
   navOpen.value = false
+}
+
+const onLogoError = () => {
+  logoError.value = true
 }
 </script>
 
@@ -12,7 +17,10 @@ const closeMenu = () => {
   <header class="top-nav reveal delay-1">
     <div class="top-nav-inner">
       <router-link class="brand-link" to="/" @click="closeMenu">
-        <span class="brand-dot" />
+        <span class="brand-mark" aria-hidden="true">
+          <img v-if="!logoError" class="brand-logo" src="/Logo.jpeg" alt="" @error="onLogoError" />
+          <span v-else class="brand-placeholder">SP</span>
+        </span>
         <span class="brand-text">SMME Plug</span>
       </router-link>
 

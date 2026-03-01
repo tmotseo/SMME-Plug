@@ -111,12 +111,31 @@ p {
   gap: 0.55rem;
 }
 
-.brand-dot {
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: 999px;
-  background: var(--accent);
-  box-shadow: 0 0 0 0.3rem #f2b94f44;
+.brand-mark {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.brand-placeholder {
+  font-family: 'Sora', 'Segoe UI', sans-serif;
+  font-weight: 700;
+  font-size: 0.74rem;
+  color: var(--brand-dark);
+  letter-spacing: 0.04em;
 }
 
 .brand-text {
@@ -745,6 +764,18 @@ p {
   justify-content: space-between;
   color: var(--ink-soft);
   font-size: 0.92rem;
+}
+
+.footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.footer-brand-mark {
+  width: 1.85rem;
+  height: 1.85rem;
+  flex-shrink: 0;
 }
 
 .footer-links {
