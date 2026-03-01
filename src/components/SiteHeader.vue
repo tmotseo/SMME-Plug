@@ -25,7 +25,7 @@ const logoutAdmin = async () => {
   adminLoggedIn.value = false
   closeMenu()
   window.dispatchEvent(new Event('admin-auth-changed'))
-  await router.push('/admin')
+  await router.push('/')
 }
 
 onMounted(() => {
