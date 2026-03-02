@@ -238,8 +238,8 @@ onMounted(() => {
       </div>
     </div>
 
-    <div v-else class="grid gap-8 xl:grid-cols-[260px_minmax(0,1fr)]">
-      <aside class="rounded-xl bg-white p-6 shadow-sm">
+    <div v-else class="grid gap-y-10 gap-x-6 xl:grid-cols-[260px_minmax(0,1fr)]">
+      <aside class="mb-2 rounded-xl bg-white p-6 shadow-sm">
         <div class="rounded-lg bg-gradient-to-br from-[#0c9168] to-[#0b7353] p-6 text-white">
           <p class="text-xs tracking-[0.15em] text-emerald-100">SMME PLUG</p>
           <h2 class="mt-2 text-xl font-semibold">Admin Dashboard</h2>
@@ -275,8 +275,8 @@ onMounted(() => {
         </div>
       </aside>
 
-      <div class="space-y-8">
-        <header class="rounded-xl bg-white p-6 shadow-sm">
+      <div class="space-y-10">
+        <header class="mb-2 rounded-xl bg-white p-6 shadow-sm">
           <p class="text-xs font-semibold tracking-[0.12em] text-emerald-600">ADMIN PANEL</p>
           <h1 class="mt-2 text-2xl font-bold text-slate-900">Registration Management Console</h1>
           <p class="mt-2 text-sm text-slate-500">
@@ -284,11 +284,11 @@ onMounted(() => {
           </p>
         </header>
 
-        <section class="grid gap-7 sm:grid-cols-2 xl:grid-cols-4">
+        <section class="grid gap-y-10 gap-x-6 sm:grid-cols-2 xl:grid-cols-4">
           <article
             v-for="tile in dashboardTiles"
             :key="tile.key"
-            class="relative min-h-[128px] overflow-hidden rounded-xl bg-white p-6 shadow-sm"
+            class="relative mb-2 min-h-[128px] overflow-hidden rounded-xl bg-white p-6 shadow-sm"
           >
             <div
               class="pointer-events-none absolute -right-7 -top-7 h-24 w-24 rotate-12 rounded-3xl bg-gradient-to-br opacity-20"
@@ -299,8 +299,8 @@ onMounted(() => {
           </article>
         </section>
 
-        <section class="grid gap-8 lg:grid-cols-3">
-          <article class="rounded-xl bg-white p-6 shadow-sm lg:col-span-2">
+        <section class="grid gap-y-10 gap-x-6 lg:grid-cols-3">
+          <article class="mb-2 rounded-xl bg-white p-6 shadow-sm lg:col-span-2">
             <h3 class="text-base font-bold text-slate-900">Registration Overview</h3>
             <div class="mt-5 space-y-4">
               <div>
@@ -333,7 +333,7 @@ onMounted(() => {
             </div>
           </article>
 
-          <article class="rounded-xl bg-white p-6 shadow-sm">
+          <article class="mb-2 rounded-xl bg-white p-6 shadow-sm">
             <h3 class="text-base font-bold text-slate-900">User Type Totals</h3>
             <div class="mt-4 space-y-3 text-sm">
               <div class="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2">
@@ -352,8 +352,8 @@ onMounted(() => {
           </article>
         </section>
 
-        <section class="grid gap-8 2xl:grid-cols-[1.15fr_1fr]">
-          <article class="rounded-xl bg-white p-6 shadow-sm">
+        <section class="grid gap-y-10 gap-x-6 2xl:grid-cols-[1.15fr_1fr]">
+          <article class="mb-2 rounded-xl bg-white p-6 shadow-sm">
             <div class="flex flex-col gap-3 sm:flex-row">
               <select
                 v-model="typeFilter"
@@ -413,7 +413,7 @@ onMounted(() => {
             </div>
           </article>
 
-          <article class="rounded-xl bg-white p-6 shadow-sm">
+          <article class="mb-2 rounded-xl bg-white p-6 shadow-sm">
             <h3 class="text-base font-bold text-slate-900">User Profile</h3>
             <p v-if="!selectedUser" class="mt-3 rounded-md bg-slate-50 p-3 text-sm text-slate-500">
               Select an application from the list to manage it.
@@ -496,7 +496,7 @@ onMounted(() => {
           </article>
         </section>
 
-        <section class="rounded-xl bg-white p-6 shadow-sm">
+        <section class="mb-2 rounded-xl bg-white p-6 shadow-sm">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p class="text-xs font-semibold tracking-[0.12em] text-emerald-600">OPPORTUNITIES</p>
