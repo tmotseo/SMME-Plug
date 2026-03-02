@@ -60,6 +60,7 @@ onBeforeUnmount(() => {
         </template>
         <template v-else>
           <router-link class="nav-link" to="/" @click="closeMenu">Home</router-link>
+          <router-link class="nav-link" to="/opportunities" @click="closeMenu">Opportunities</router-link>
           <router-link class="nav-link" to="/smmes" @click="closeMenu">SMMEs</router-link>
           <router-link class="nav-link" to="/professionals" @click="closeMenu">Professionals</router-link>
           <router-link class="nav-link" to="/jobseekers" @click="closeMenu">Jobseekers</router-link>

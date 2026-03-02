@@ -14,6 +14,7 @@ const statusFilter = ref('all')
 const searchTerm = ref('')
 const selectedId = ref('')
 const adminMessage = ref('')
+const opportunitySaved = ref(false)
 
 const editForm = reactive({
   displayName: '',
@@ -28,6 +29,16 @@ const editForm = reactive({
   skillLevel: '',
   interests: '',
   adminNote: '',
+})
+
+const opportunityForm = reactive({
+  title: '',
+  audience: 'all',
+  organization: '',
+  location: '',
+  deadline: '',
+  link: '',
+  details: '',
 })
 
 const filteredUsers = computed(() =>
@@ -45,6 +56,7 @@ const filteredUsers = computed(() =>
 )
 
 const selectedUser = computed(() => store.getUserById(selectedId.value) ?? null)
+const adminOpportunities = computed(() => store.state.opportunities)
 
 const dashboardTiles = computed(() => [
   {
@@ -103,6 +115,7 @@ const unlockAdmin = () => {
     localStorage.setItem(ADMIN_AUTH_KEY, 'true')
     window.dispatchEvent(new Event('admin-auth-changed'))
     store.loadUsers()
+    store.loadOpportunities()
   }
 }
 
@@ -142,6 +155,40 @@ const sendMessage = async () => {
   if (sent) adminMessage.value = ''
 }
 
+const publishOpportunity = () => {
+  const item = store.addOpportunity({
+    title: opportunityForm.title,
+    audience: opportunityForm.audience,
+    organization: opportunityForm.organization,
+    location: opportunityForm.location,
+    deadline: opportunityForm.deadline,
+    link: opportunityForm.link,
+    details: opportunityForm.details,
+  })
+
+  if (!item) return
+
+  opportunityForm.title = ''
+  opportunityForm.audience = 'all'
+  opportunityForm.organization = ''
+  opportunityForm.location = ''
+  opportunityForm.deadline = ''
+  opportunityForm.link = ''
+  opportunityForm.details = ''
+  opportunitySaved.value = true
+}
+
+const deleteOpportunity = (id) => {
+  store.removeOpportunity(id)
+}
+
+const audienceLabel = (audience) => {
+  if (audience === 'smmes') return 'SMMEs'
+  if (audience === 'professionals') return 'Professionals'
+  if (audience === 'jobseekers') return 'Jobseekers'
+  return 'All'
+}
+
 const pct = (value) => {
   const total = store.stats.value.total || 1
   return `${Math.round((value / total) * 100)}%`
@@ -163,6 +210,7 @@ onMounted(() => {
   if (unlocked.value) {
     localStorage.setItem(ADMIN_AUTH_KEY, 'true')
     store.loadUsers()
+    store.loadOpportunities()
   }
 })
 </script>
@@ -170,7 +218,7 @@ onMounted(() => {
 <template>
   <section class="w-full rounded-[28px] bg-[#f0f0f0] p-4 sm:p-6 lg:p-7">
     <div v-if="!unlocked" class="mx-auto max-w-xl rounded-xl border border-black/5 bg-white p-8 shadow-sm">
-      <p class="text-xs font-semibold tracking-[0.12em] text-violet-500">ADMIN ACCESS</p>
+      <p class="text-xs font-semibold tracking-[0.12em] text-emerald-600">ADMIN ACCESS</p>
       <h2 class="mt-2 text-2xl font-bold text-slate-900">Registration Management Console</h2>
       <p class="mt-2 text-sm text-slate-500">Enter passcode to continue. Demo passcode: admin123</p>
       <div class="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -178,11 +226,11 @@ onMounted(() => {
           v-model="passcodeInput"
           type="password"
           placeholder="Enter passcode"
-          class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none ring-violet-200 transition focus:ring"
+          class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none ring-emerald-200 transition focus:ring"
         />
         <button
           type="button"
-          class="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700"
+          class="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
           @click="unlockAdmin"
         >
           Unlock
@@ -192,15 +240,15 @@ onMounted(() => {
 
     <div v-else class="grid gap-8 xl:grid-cols-[260px_minmax(0,1fr)]">
       <aside class="rounded-xl bg-white p-6 shadow-sm">
-        <div class="rounded-lg bg-gradient-to-br from-[#121f39] to-[#213c6d] p-6 text-white">
-          <p class="text-xs tracking-[0.15em] text-sky-200">SMME PLUG</p>
+        <div class="rounded-lg bg-gradient-to-br from-[#0c9168] to-[#0b7353] p-6 text-white">
+          <p class="text-xs tracking-[0.15em] text-emerald-100">SMME PLUG</p>
           <h2 class="mt-2 text-xl font-semibold">Admin Dashboard</h2>
-          <p class="mt-1 text-xs text-sky-100/90">Manage registrations and approvals</p>
+          <p class="mt-1 text-xs text-emerald-50/90">Manage registrations and approvals</p>
         </div>
 
         <ul class="mt-6 space-y-2.5">
           <li>
-            <a class="flex items-center rounded-xl bg-violet-50 px-4 py-3 text-sm font-semibold text-violet-700" href="#">
+            <a class="flex items-center rounded-xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700" href="#">
               Dashboard
             </a>
           </li>
@@ -229,7 +277,7 @@ onMounted(() => {
 
       <div class="space-y-8">
         <header class="rounded-xl bg-white p-6 shadow-sm">
-          <p class="text-xs font-semibold tracking-[0.12em] text-violet-500">ADMIN PANEL</p>
+          <p class="text-xs font-semibold tracking-[0.12em] text-emerald-600">ADMIN PANEL</p>
           <h1 class="mt-2 text-2xl font-bold text-slate-900">Registration Management Console</h1>
           <p class="mt-2 text-sm text-slate-500">
             Approve or reject applications, update profiles, and communicate with registered users.
@@ -309,7 +357,7 @@ onMounted(() => {
             <div class="flex flex-col gap-3 sm:flex-row">
               <select
                 v-model="typeFilter"
-                class="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-violet-200 focus:ring"
+                class="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-emerald-200 focus:ring"
               >
                 <option value="all">All Types</option>
                 <option value="smmes">SMMEs</option>
@@ -318,7 +366,7 @@ onMounted(() => {
               </select>
               <select
                 v-model="statusFilter"
-                class="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-violet-200 focus:ring"
+                class="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-emerald-200 focus:ring"
               >
                 <option value="all">All Status</option>
                 <option value="pending">Pending</option>
@@ -329,7 +377,7 @@ onMounted(() => {
                 v-model="searchTerm"
                 type="text"
                 placeholder="Search name/email/phone"
-                class="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-violet-200 focus:ring"
+                class="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none ring-emerald-200 focus:ring"
               />
             </div>
 
@@ -342,7 +390,7 @@ onMounted(() => {
                 class="w-full rounded-lg border px-4 py-3 text-left transition"
                 :class="
                   selectedId === user.id
-                    ? 'border-violet-300 bg-violet-50'
+                    ? 'border-emerald-300 bg-emerald-50'
                     : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
                 "
                 @click="selectedId = user.id"
@@ -389,7 +437,7 @@ onMounted(() => {
                 </button>
                 <button
                   type="button"
-                  class="rounded-md bg-violet-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-violet-700"
+                  class="rounded-md bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700"
                   @click="saveProfile"
                 >
                   Update Profile
@@ -447,6 +495,80 @@ onMounted(() => {
             </template>
           </article>
         </section>
+
+        <section class="rounded-xl bg-white p-6 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p class="text-xs font-semibold tracking-[0.12em] text-emerald-600">OPPORTUNITIES</p>
+              <h3 class="mt-1 text-lg font-bold text-slate-900">Advertise Opportunities</h3>
+              <p class="mt-1 text-sm text-slate-500">
+                Post opportunities for SMMEs, Professionals, Jobseekers, or all audiences.
+              </p>
+            </div>
+          </div>
+
+          <form class="mt-5 grid gap-3 md:grid-cols-2" @submit.prevent="publishOpportunity">
+            <input v-model="opportunityForm.title" type="text" required placeholder="Opportunity Title" class="admin-input md:col-span-2" />
+            <select v-model="opportunityForm.audience" class="admin-input">
+              <option value="all">All Audiences</option>
+              <option value="smmes">SMMEs</option>
+              <option value="professionals">Professionals</option>
+              <option value="jobseekers">Jobseekers</option>
+            </select>
+            <input v-model="opportunityForm.organization" type="text" placeholder="Organization / Company" class="admin-input" />
+            <input v-model="opportunityForm.location" type="text" placeholder="Location" class="admin-input" />
+            <input v-model="opportunityForm.deadline" type="date" class="admin-input" />
+            <input v-model="opportunityForm.link" type="url" placeholder="Application Link (https://...)" class="admin-input md:col-span-2" />
+            <textarea
+              v-model="opportunityForm.details"
+              class="admin-input min-h-[90px] md:col-span-2"
+              placeholder="Opportunity description, requirements, or notes"
+            />
+            <div class="md:col-span-2">
+              <button
+                type="submit"
+                class="rounded-md bg-emerald-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700"
+              >
+                Publish Opportunity
+              </button>
+              <p v-if="opportunitySaved" class="mt-2 text-xs font-medium text-emerald-600">Opportunity published successfully.</p>
+            </div>
+          </form>
+
+          <div class="mt-6 space-y-2.5">
+            <article
+              v-for="item in adminOpportunities"
+              :key="item.id"
+              class="rounded-md border border-slate-200 bg-slate-50 p-3"
+            >
+              <div class="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <h4 class="text-sm font-semibold text-slate-900">{{ item.title }}</h4>
+                  <p class="mt-1 text-xs text-slate-600">
+                    {{ audienceLabel(item.audience) }}
+                    <span v-if="item.organization"> | {{ item.organization }}</span>
+                    <span v-if="item.location"> | {{ item.location }}</span>
+                    <span v-if="item.deadline"> | Deadline: {{ item.deadline }}</span>
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  class="rounded-md border border-rose-200 px-2 py-1 text-[11px] font-semibold text-rose-700 transition hover:bg-rose-50"
+                  @click="deleteOpportunity(item.id)"
+                >
+                  Delete
+                </button>
+              </div>
+              <p v-if="item.details" class="mt-2 text-xs text-slate-600">{{ item.details }}</p>
+              <a v-if="item.link" :href="item.link" target="_blank" rel="noreferrer" class="mt-2 inline-block text-xs font-semibold text-emerald-600">
+                Open Link
+              </a>
+            </article>
+            <p v-if="!adminOpportunities.length" class="rounded-md bg-slate-50 p-3 text-xs text-slate-500">
+              No opportunities published yet.
+            </p>
+          </div>
+        </section>
       </div>
     </div>
   </section>
@@ -465,7 +587,7 @@ onMounted(() => {
 }
 
 .admin-input:focus {
-  border-color: rgb(196 181 253);
-  box-shadow: 0 0 0 2px rgb(237 233 254);
+  border-color: rgb(16 185 129);
+  box-shadow: 0 0 0 2px rgb(209 250 229);
 }
 </style>

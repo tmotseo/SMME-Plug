@@ -1,13 +1,28 @@
 import { computed, reactive } from 'vue'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
+const OPPORTUNITIES_KEY = 'smme_opportunities'
 
 const state = reactive({
   users: [],
+  opportunities: [],
   loading: false,
   loaded: false,
   error: '',
 })
+
+const loadOpportunities = () => {
+  try {
+    const raw = localStorage.getItem(OPPORTUNITIES_KEY)
+    state.opportunities = raw ? JSON.parse(raw) : []
+  } catch (error) {
+    state.opportunities = []
+  }
+}
+
+const persistOpportunities = () => {
+  localStorage.setItem(OPPORTUNITIES_KEY, JSON.stringify(state.opportunities))
+}
 
 const request = async (path, options = {}) => {
   const res = await fetch(`${API_BASE}${path}`, {
@@ -103,6 +118,38 @@ const sendAdminMessage = async (id, text) => {
 
 const usersByType = (type) => state.users.filter((user) => user.type === type)
 const approvedUsersByType = (type) => state.users.filter((user) => user.type === type && user.status === 'approved')
+const opportunitiesByAudience = (audience) =>
+  state.opportunities.filter((item) => item.audience === 'all' || item.audience === audience)
+
+const addOpportunity = ({ title, audience, organization = '', location = '', deadline = '', link = '', details = '' }) => {
+  const trimmedTitle = title?.trim()
+  if (!trimmedTitle) return null
+
+  const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`
+  const opportunity = {
+    id,
+    title: trimmedTitle,
+    audience: audience || 'all',
+    organization: organization.trim(),
+    location: location.trim(),
+    deadline,
+    link: link.trim(),
+    details: details.trim(),
+    createdAt: new Date().toISOString(),
+  }
+
+  state.opportunities.unshift(opportunity)
+  persistOpportunities()
+  return opportunity
+}
+
+const removeOpportunity = (id) => {
+  const index = state.opportunities.findIndex((item) => item.id === id)
+  if (index < 0) return false
+  state.opportunities.splice(index, 1)
+  persistOpportunities()
+  return true
+}
 
 const stats = computed(() => {
   const total = state.users.length
@@ -120,6 +167,7 @@ export const useRegistrationStore = () => ({
   state,
   stats,
   loadUsers,
+  loadOpportunities,
   refreshUsers,
   addRegistration,
   getUserById,
@@ -129,4 +177,7 @@ export const useRegistrationStore = () => ({
   sendAdminMessage,
   usersByType,
   approvedUsersByType,
+  opportunitiesByAudience,
+  addOpportunity,
+  removeOpportunity,
 })

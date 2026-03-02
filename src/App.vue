@@ -8,6 +8,7 @@ const store = useRegistrationStore()
 
 onMounted(() => {
   store.loadUsers()
+  store.loadOpportunities()
 })
 </script>
 
