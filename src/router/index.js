@@ -4,6 +4,7 @@ import AdminPage from '../pages/AdminPage.vue'
 import HomePage from '../pages/HomePage.vue'
 import JobseekersPage from '../pages/JobseekersPage.vue'
 import OpportunitiesPage from '../pages/OpportunitiesPage.vue'
+import PricingPage from '../pages/PricingPage.vue'
 import ProfessionalsPage from '../pages/ProfessionalsPage.vue'
 import SmmesPage from '../pages/SmmesPage.vue'
 
@@ -13,6 +14,7 @@ const routes = [
   { path: '/professionals', name: 'professionals', component: ProfessionalsPage },
   { path: '/jobseekers', name: 'jobseekers', component: JobseekersPage },
   { path: '/opportunities', name: 'opportunities', component: OpportunitiesPage },
+  { path: '/pricing', name: 'pricing', component: PricingPage },
   { path: '/admin', name: 'admin', component: AdminPage },
 ]
 
