@@ -1,12 +1,14 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useRegistrationStore } from '../stores/registrationStore'
 
 const navOpen = ref(false)
 const logoError = ref(false)
 const ADMIN_AUTH_KEY = 'smme_admin_logged_in'
 const adminLoggedIn = ref(localStorage.getItem(ADMIN_AUTH_KEY) === 'true')
 const router = useRouter()
+const store = useRegistrationStore()
 
 const closeMenu = () => {
   navOpen.value = false
@@ -21,7 +23,7 @@ const refreshAdminAuth = () => {
 }
 
 const logoutAdmin = async () => {
-  localStorage.removeItem(ADMIN_AUTH_KEY)
+  await store.signOutAdmin()
   adminLoggedIn.value = false
   closeMenu()
   window.dispatchEvent(new Event('admin-auth-changed'))

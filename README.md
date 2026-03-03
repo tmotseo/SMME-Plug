@@ -36,3 +36,65 @@ npm run dev
 ```sh
 npm run build
 ```
+
+## Supabase Realtime Database Setup
+
+This project supports Supabase for realtime storage of:
+
+- Admin details (`admins`)
+- User registrations (`registrations`)
+- Opportunities (`opportunities`)
+ - Admin authentication via Supabase Auth (email/password)
+
+### 1. Configure environment
+
+Copy `.env.example` to `.env` and set:
+
+```sh
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+```
+
+### 2. Apply database schema
+
+Requires Supabase CLI.
+
+```sh
+npm run db:supabase:link
+npm run db:supabase:push
+```
+
+Migration file:
+
+- `supabase/migrations/20260303_001_init.sql`
+
+### 3. (Optional) Generate TypeScript database types
+
+```sh
+npm run db:supabase:types
+```
+
+### 4. Hosting deployment script
+
+Use:
+
+```sh
+npm run deploy:build
+```
+
+Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in your hosting provider environment variables.
+
+### 5. Configure Admin Auth (email/password)
+
+1. In Supabase dashboard, create an Auth user (email/password).
+2. Add the same email in `public.admins` and mark it active.
+
+Example SQL:
+
+```sql
+insert into public.admins (email, display_name, is_active)
+values ('admin@example.com', 'Platform Admin', true)
+on conflict (email) do update set is_active = true;
+```
+
+The app signs in with Supabase Auth, then verifies the signed-in email exists in `public.admins` as active.

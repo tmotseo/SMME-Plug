@@ -5,8 +5,9 @@ import { useRegistrationStore } from '../stores/registrationStore'
 const store = useRegistrationStore()
 const ADMIN_AUTH_KEY = 'smme_admin_logged_in'
 
-const adminPasscode = 'admin123'
-const passcodeInput = ref('')
+const adminEmail = ref('')
+const adminPassword = ref('')
+const authError = ref('')
 const unlocked = ref(localStorage.getItem(ADMIN_AUTH_KEY) === 'true')
 
 const typeFilter = ref('all')
@@ -109,13 +110,26 @@ watch(
   { immediate: true },
 )
 
-const unlockAdmin = () => {
-  unlocked.value = passcodeInput.value === adminPasscode
+const unlockAdmin = async () => {
+  authError.value = ''
+  const admin = await store.signInAdmin({
+    email: adminEmail.value,
+    password: adminPassword.value,
+  })
+  unlocked.value = Boolean(admin)
+
+  if (!unlocked.value) {
+    authError.value = 'Invalid admin credentials.'
+    return
+  }
+
+  adminEmail.value = ''
+  adminPassword.value = ''
   if (unlocked.value) {
     localStorage.setItem(ADMIN_AUTH_KEY, 'true')
     window.dispatchEvent(new Event('admin-auth-changed'))
-    store.loadUsers()
-    store.loadOpportunities()
+    await store.loadUsers()
+    await store.loadOpportunities()
   }
 }
 
@@ -155,8 +169,8 @@ const sendMessage = async () => {
   if (sent) adminMessage.value = ''
 }
 
-const publishOpportunity = () => {
-  const item = store.addOpportunity({
+const publishOpportunity = async () => {
+  const item = await store.addOpportunity({
     title: opportunityForm.title,
     audience: opportunityForm.audience,
     organization: opportunityForm.organization,
@@ -178,8 +192,8 @@ const publishOpportunity = () => {
   opportunitySaved.value = true
 }
 
-const deleteOpportunity = (id) => {
-  store.removeOpportunity(id)
+const deleteOpportunity = async (id) => {
+  await store.removeOpportunity(id)
 }
 
 const audienceLabel = (audience) => {
@@ -207,11 +221,18 @@ const statusDotClass = (status) => {
 }
 
 onMounted(() => {
-  if (unlocked.value) {
+  store.initializeAdminAuth().then((valid) => {
+    unlocked.value = valid
+    if (!valid) {
+      localStorage.removeItem(ADMIN_AUTH_KEY)
+      window.dispatchEvent(new Event('admin-auth-changed'))
+      return
+    }
     localStorage.setItem(ADMIN_AUTH_KEY, 'true')
+    store.loadAdmins()
     store.loadUsers()
     store.loadOpportunities()
-  }
+  })
 })
 </script>
 
@@ -220,12 +241,12 @@ onMounted(() => {
     <div v-if="!unlocked" class="mx-auto max-w-xl rounded-xl border border-black/5 bg-white p-8 shadow-sm">
       <p class="text-xs font-semibold tracking-[0.12em] text-emerald-600">ADMIN ACCESS</p>
       <h2 class="mt-2 text-2xl font-bold text-slate-900">Registration Management Console</h2>
-      <p class="mt-2 text-sm text-slate-500">Enter passcode to continue. Demo passcode: admin123</p>
+      <p class="mt-2 text-sm text-slate-500">Enter admin email and password to continue.</p>
       <div class="mt-6 flex flex-col gap-3 sm:flex-row">
         <input
-          v-model="passcodeInput"
-          type="password"
-          placeholder="Enter passcode"
+          v-model="adminEmail"
+          type="email"
+          placeholder="Admin email"
           class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none ring-emerald-200 transition focus:ring"
         />
         <button
@@ -236,6 +257,13 @@ onMounted(() => {
           Unlock
         </button>
       </div>
+      <input
+        v-model="adminPassword"
+        type="password"
+        placeholder="Admin password"
+        class="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none ring-emerald-200 transition focus:ring"
+      />
+      <p v-if="authError" class="mt-2 text-xs font-semibold text-rose-600">{{ authError }}</p>
     </div>
 
     <div v-else class="grid gap-y-10 gap-x-6 xl:grid-cols-[260px_minmax(0,1fr)]">

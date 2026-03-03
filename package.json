@@ -8,9 +8,15 @@
     "server": "node server/index.js",
     "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy:build": "npm ci && npm run build",
+    "db:supabase:link": "supabase link",
+    "db:supabase:push": "supabase db push",
+    "db:supabase:reset": "supabase db reset",
+    "db:supabase:types": "supabase gen types typescript --schema public > src/types/supabase.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.98.0",
     "better-sqlite3": "^12.6.2",
     "concurrently": "^9.2.1",
     "cors": "^2.8.6",
