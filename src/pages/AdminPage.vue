@@ -249,7 +249,13 @@ onMounted(() => {
           placeholder="Admin email"
           class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none ring-emerald-200 transition focus:ring"
         />
-       
+        <button
+          type="button"
+          class="w-full rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+          @click="unlockAdmin"
+        >
+          Unlock
+        </button>
       </div>
       <input
         v-model="adminPassword"
@@ -257,13 +263,6 @@ onMounted(() => {
         placeholder="Admin password"
         class="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none ring-emerald-200 transition focus:ring"
       />
-       <button
-          type="button"
-          class="w-full rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
-          @click="unlockAdmin"
-        >
-          Unlock
-        </button>
       <p v-if="authError" class="mt-2 text-xs font-semibold text-rose-600">{{ authError }}</p>
     </div>
 
