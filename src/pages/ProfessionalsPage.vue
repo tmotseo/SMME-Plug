@@ -85,6 +85,9 @@ const submitForm = async () => {
           <label for="experience">Experience Summary</label>
           <textarea id="experience" v-model="form.experience" required />
         </div>
+        <small><em>I hereby give my consent to [SMMEs Plug] to collect, store, and process my personal information for the purposes stated above, in accordance with POPIA.
+I understand that I may withdraw my consent in writing at any time.</em></small>
+<a href="https://smmesplug.co.za/consent-form/" target="_blank">Clic on the Link</a>
         <button class="btn btn-primary" type="submit">Submit Professional Profile</button>
       </form>
       <p v-if="submitted" class="small-note success-note">
