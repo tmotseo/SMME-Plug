@@ -86,8 +86,15 @@ h1, h2, h3, h4, h5 {
 }
 
 .site-main {
-  padding-bottom: 0;
+  padding-bottom: 2rem;
   padding-inline: var(--page-gutter);
+}
+
+/* Spacing between sibling page sections (sub-pages) */
+.site-main > section + section,
+.site-main > div + section,
+.site-main > section + div {
+  margin-top: 1.2rem;
 }
 
 /* Full-bleed homepage sections break out of site-main padding */

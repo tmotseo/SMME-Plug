@@ -43,11 +43,7 @@ onBeforeUnmount(() => {
     <SiteHeader />
 
     <main class="site-main">
-      <router-view v-slot="{ Component }">
-        <transition name="page" mode="out-in">
-          <component :is="Component" />
-        </transition>
-      </router-view>
+      <router-view />
     </main>
 
     <SiteFooter />
