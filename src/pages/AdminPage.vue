@@ -237,25 +237,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="w-full rounded-[28px] bg-[#f0f0f0] p-4 sm:p-6 lg:p-7">
-    <div v-if="!unlocked" class="mx-auto max-w-xl rounded-xl border border-black/5 bg-white p-8 shadow-sm">
+  <section class="w-full min-h-[85vh] flex flex-col items-center justify-center rounded-[28px] bg-[#f0f0f0] p-4 sm:p-6 lg:p-7">
+    <div v-if="!unlocked" class="mx-auto max-w-md w-full rounded-xl border border-black/5 bg-white p-8 shadow-sm">
       <p class="text-xs font-semibold tracking-[0.12em] text-emerald-600">ADMIN ACCESS</p>
       <h2 class="mt-2 text-2xl font-bold text-slate-900">Registration Management Console</h2>
       <p class="mt-2 text-sm text-slate-500">Enter admin email and password to continue.</p>
-      <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+      <div class="mt-6 flex flex-col items-center gap-3">
         <input
           v-model="adminEmail"
           type="email"
           placeholder="Admin email"
           class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none ring-emerald-200 transition focus:ring"
         />
-        <button
-          type="button"
-          class="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
-          @click="unlockAdmin"
-        >
-          Unlock
-        </button>
+       
       </div>
       <input
         v-model="adminPassword"
@@ -263,6 +257,13 @@ onMounted(() => {
         placeholder="Admin password"
         class="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none ring-emerald-200 transition focus:ring"
       />
+       <button
+          type="button"
+          class="w-full rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+          @click="unlockAdmin"
+        >
+          Unlock
+        </button>
       <p v-if="authError" class="mt-2 text-xs font-semibold text-rose-600">{{ authError }}</p>
     </div>
 
