@@ -39,7 +39,7 @@ const onLogoError = () => { logoError.value = true }
         <div class="footer-col">
           <h4>Company</h4>
           <ul>
-            <li><router-link to="/pricing">Pricing</router-link></li>
+            <li><router-link to="/pricing">Member's Benefits</router-link></li>
             <li><a href="https://smmesplug.co.za/" target="_blank" rel="noreferrer">Official Portal</a></li>
             <li><a href="https://smmesplug.co.za/" target="_blank" rel="noreferrer">Consent Form</a></li>
             <li><router-link to="/admin">Admin</router-link></li>
