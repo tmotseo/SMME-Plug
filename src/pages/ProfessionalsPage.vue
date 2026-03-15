@@ -12,7 +12,20 @@ const form = reactive({
   experience: '',
 })
 
-const approvedProfessionals = computed(() => store.approvedUsersByType('professionals'))
+const approvedProfessionals = computed(() => {
+  const users = store.approvedUsersByType('professionals')
+  if (!searchQuery.value.trim()) return users
+  
+  const query = searchQuery.value.toLowerCase()
+  return users.filter(user => 
+    user.displayName?.toLowerCase().includes(query) ||
+    user.profile?.field?.toLowerCase().includes(query) ||
+    user.email?.toLowerCase().includes(query) ||
+    user.phone?.toLowerCase().includes(query)
+  )
+})
+
+const searchQuery = ref('')
 
 const submitForm = async () => {
   await store.addRegistration({
@@ -99,6 +112,17 @@ I understand that I may withdraw my consent in writing at any time.</em></small>
   <section class="content-card reveal delay-5">
     <p class="eyebrow">Approved Professionals</p>
     <h3 style="margin-top: 0.45rem">Public profiles approved by admin</h3>
+    
+    <!-- Search Box -->
+    <div class="mt-4 mb-4">
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="Search by name, field or email..."
+        class="w-full md:w-96 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none ring-emerald-200 transition focus:ring"
+      />
+    </div>
+    
     <div v-if="approvedProfessionals.length" class="approved-grid">
       <article v-for="user in approvedProfessionals" :key="user.id" class="approved-card">
         <h4>{{ user.displayName }}</h4>

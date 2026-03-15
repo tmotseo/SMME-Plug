@@ -192,7 +192,20 @@ const smmeProfileLinks = {
 
 const getProfileUrl = (companyName) => smmeProfileLinks[companyName] ?? 'https://smmesplug.co.za/smmes/'
 
-const approvedSmmes = computed(() => store.approvedUsersByType('smmes'))
+const searchQuery = ref('')
+
+const approvedSmmes = computed(() => {
+  const users = store.approvedUsersByType('smmes')
+  if (!searchQuery.value.trim()) return users
+  
+  const query = searchQuery.value.toLowerCase()
+  return users.filter(user => 
+    user.displayName?.toLowerCase().includes(query) ||
+    user.profile?.category?.toLowerCase().includes(query) ||
+    user.profile?.services?.toLowerCase().includes(query) ||
+    user.phone?.toLowerCase().includes(query)
+  )
+})
 
 const submitForm = async () => {
   await store.addRegistration({
@@ -274,6 +287,17 @@ const submitForm = async () => {
   <section class="content-card reveal delay-5">
     <p class="eyebrow">Approved SMME Applications</p>
     <h3 style="margin-top: 0.45rem">Profiles published after admin approval</h3>
+    
+    <!-- Search Box -->
+    <div class="mt-4 mb-4">
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="Search by name, category, services or phone..."
+        class="w-full md:w-96 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none ring-emerald-200 transition focus:ring"
+      />
+    </div>
+    
     <div v-if="approvedSmmes.length" class="approved-grid">
       <article v-for="user in approvedSmmes" :key="user.id" class="approved-card">
         <h4>{{ user.displayName }}</h4>
