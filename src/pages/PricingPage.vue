@@ -2,7 +2,7 @@
 const packages = [
   {
     name: 'Brand Identity',
-    price: 'From R1,000',
+    price: 'From R1,500',
     subtitle: 'Visual foundation for your business',
     features: [
       'Logo design concepts',
@@ -13,7 +13,7 @@ const packages = [
   },
   {
     name: 'Website Development',
-    price: 'From R1,500',
+    price: 'From R3,800',
     subtitle: 'Professional website for growth',
     features: [
       'Responsive multi-page website',
@@ -35,7 +35,7 @@ const packages = [
   },
   {
     name: 'Digital Marketing',
-    price: 'From R1,100 / month',
+    price: 'From R2,500 / month',
     subtitle: 'Consistent visibility and leads',
     features: [
       'Social media campaign management',

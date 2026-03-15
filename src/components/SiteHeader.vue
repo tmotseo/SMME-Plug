@@ -63,6 +63,8 @@ onBeforeUnmount(() => {
           <router-link class="nav-link" to="/smmes" @click="closeMenu">SMMEs</router-link>
           <router-link class="nav-link" to="/professionals" @click="closeMenu">Professionals</router-link>
           <router-link class="nav-link" to="/jobseekers" @click="closeMenu">Jobseekers</router-link>
+          <router-link class="nav-link" to="/faq" @click="closeMenu">FAQ</router-link>
+          <router-link class="nav-link" to="/contact" @click="closeMenu">Contact</router-link>
           <router-link class="nav-link" to="/admin" @click="closeMenu">Admin</router-link>
         </template>
       </nav>
@@ -70,7 +72,7 @@ onBeforeUnmount(() => {
       <!-- CTA + Hamburger -->
       <div class="nav-cta">
         <router-link v-if="!adminLoggedIn" class="btn btn-primary btn-sm" to="/pricing" @click="closeMenu">
-          Member's benefits
+          Member's Benefit
         </router-link>
       </div>
 

@@ -120,6 +120,10 @@ const unlockAdmin = async () => {
 
   if (!unlocked.value) {
     authError.value = 'Invalid admin credentials.'
+    // Auto-dismiss error after 5 seconds
+    setTimeout(() => {
+      authError.value = ''
+    }, 5000) // 5 seconds
     return
   }
 
@@ -237,33 +241,33 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="w-full min-h-[85vh] flex flex-col items-center justify-center rounded-[28px] bg-[#f0f0f0] p-4 sm:p-6 lg:p-7">
-    <div v-if="!unlocked" class="mx-auto max-w-md w-full rounded-xl border border-black/5 bg-white p-8 shadow-sm">
-      <p class="text-xs font-semibold tracking-[0.12em] text-emerald-600">ADMIN ACCESS</p>
-      <h2 class="mt-2 text-2xl font-bold text-slate-900">Registration Management Console</h2>
-      <p class="mt-2 text-sm text-slate-500">Enter admin email and password to continue.</p>
-      <div class="mt-6 flex flex-col items-center gap-3">
+  <section class="flex min-h-[80vh] w-full items-center justify-center rounded-[28px] bg-[#f0f0f0] p-4 sm:p-6 lg:p-7">
+    <div v-if="!unlocked" class="mx-auto w-full max-w-md rounded-xl border border-black/5 bg-white p-8 shadow-sm">
+      <p class="text-center text-xs font-semibold tracking-[0.12em] text-emerald-600">ADMIN ACCESS</p>
+      <h2 class="mt-2 text-center text-2xl font-bold text-slate-900">Registration Management Console</h2>
+      <p class="mt-2 text-center text-sm text-slate-500">Enter admin email and password to continue.</p>
+      <div class="mt-6 flex flex-col gap-4">
         <input
           v-model="adminEmail"
           type="email"
           placeholder="Admin email"
-          class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none ring-emerald-200 transition focus:ring"
+          class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none ring-emerald-200 transition focus:ring"
+        />
+        <input
+          v-model="adminPassword"
+          type="password"
+          placeholder="Admin password"
+          class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none ring-emerald-200 transition focus:ring"
         />
         <button
           type="button"
-          class="w-full rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+          class="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
           @click="unlockAdmin"
         >
-          Unlock
+          Login
         </button>
       </div>
-      <input
-        v-model="adminPassword"
-        type="password"
-        placeholder="Admin password"
-        class="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none ring-emerald-200 transition focus:ring"
-      />
-      <p v-if="authError" class="mt-2 text-xs font-semibold text-rose-600">{{ authError }}</p>
+      <p v-if="authError" class="mt-3 text-center text-xs font-semibold text-rose-600">{{ authError }}</p>
     </div>
 
     <div v-else class="grid gap-y-10 gap-x-6 xl:grid-cols-[260px_minmax(0,1fr)]">

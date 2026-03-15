@@ -1,7 +1,6 @@
 import { computed, reactive } from 'vue'
 import { hasSupabase, supabase } from '../lib/supabaseClient'
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 const OPPORTUNITIES_KEY = 'smme_opportunities'
 
 const state = reactive({
@@ -53,49 +52,27 @@ const toOpportunity = (row) => ({
   createdBy: row.created_by ?? null,
 })
 
-const request = async (path, options = {}) => {
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  })
-
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}))
-    throw new Error(data.error || `Request failed (${res.status})`)
-  }
-
-  return res.json()
-}
-
+// Load users from Supabase
 const loadUsers = async (query = {}) => {
   state.loading = true
   state.error = ''
 
   try {
-    if (hasSupabase) {
-      let q = supabase.from('registrations').select('*').order('created_at', { ascending: false })
-      if (query.type && query.type !== 'all') q = q.eq('type', query.type)
-      if (query.status && query.status !== 'all') q = q.eq('status', query.status)
-      if (query.search) {
-        const s = query.search.trim().replace(/,/g, ' ')
-        q = q.or(`display_name.ilike.%${s}%,email.ilike.%${s}%,phone.ilike.%${s}%`)
-      }
-
-      const { data, error } = await q
-      if (error) throw error
-      state.users = (data ?? []).map(toUser)
-      state.loaded = true
-      return
+    if (!hasSupabase) {
+      throw new Error('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.')
     }
 
-    const params = new URLSearchParams()
-    if (query.type) params.set('type', query.type)
-    if (query.status) params.set('status', query.status)
-    if (query.search) params.set('search', query.search)
+    let q = supabase.from('registrations').select('*').order('created_at', { ascending: false })
+    if (query.type && query.type !== 'all') q = q.eq('type', query.type)
+    if (query.status && query.status !== 'all') q = q.eq('status', query.status)
+    if (query.search) {
+      const s = query.search.trim().replace(/,/g, ' ')
+      q = q.or(`display_name.ilike.%${s}%,email.ilike.%${s}%,phone.ilike.%${s}%`)
+    }
 
-    const path = params.size ? `/registrations?${params.toString()}` : '/registrations'
-    const users = await request(path)
-    state.users = users
+    const { data, error } = await q
+    if (error) throw error
+    state.users = (data ?? []).map(toUser)
     state.loaded = true
   } catch (error) {
     state.error = error.message
@@ -109,31 +86,26 @@ const refreshUsers = async () => {
 }
 
 const addRegistration = async ({ type, displayName, email = '', phone = '', profile = {} }) => {
-  if (hasSupabase) {
-    const payload = {
-      type,
-      status: 'pending',
-      display_name: sanitizeText(displayName),
-      email: sanitizeText(email),
-      phone: sanitizeText(phone),
-      profile_json: profile ?? {},
-      admin_note: '',
-      messages_json: [],
-      created_at: nowIso(),
-      updated_at: nowIso(),
-    }
-
-    const { data, error } = await supabase.from('registrations').insert(payload).select('*').single()
-    if (error) throw error
-    const user = toUser(data)
-    state.users.unshift(user)
-    return user
+  if (!hasSupabase) {
+    throw new Error('Supabase is not configured')
   }
 
-  const user = await request('/registrations', {
-    method: 'POST',
-    body: JSON.stringify({ type, displayName, email, phone, profile }),
-  })
+  const payload = {
+    type,
+    status: 'pending',
+    display_name: sanitizeText(displayName),
+    email: sanitizeText(email),
+    phone: sanitizeText(phone),
+    profile_json: profile ?? {},
+    admin_note: '',
+    messages_json: [],
+    created_at: nowIso(),
+    updated_at: nowIso(),
+  }
+
+  const { data, error } = await supabase.from('registrations').insert(payload).select('*').single()
+  if (error) throw error
+  const user = toUser(data)
   state.users.unshift(user)
   return user
 }
@@ -141,134 +113,127 @@ const addRegistration = async ({ type, displayName, email = '', phone = '', prof
 const getUserById = (id) => state.users.find((user) => user.id === id)
 
 const updateUserProfile = async (id, payload) => {
-  if (hasSupabase) {
-    const existing = getUserById(id)
-    if (!existing) return false
-    const mergedProfile = { ...(existing.profile ?? {}), ...(payload.profile ?? {}) }
-
-    const { data, error } = await supabase
-      .from('registrations')
-      .update({
-        display_name: sanitizeText(payload.displayName ?? existing.displayName),
-        email: sanitizeText(payload.email ?? existing.email),
-        phone: sanitizeText(payload.phone ?? existing.phone),
-        profile_json: mergedProfile,
-        admin_note: sanitizeText(payload.adminNote ?? existing.adminNote),
-        updated_at: nowIso(),
-      })
-      .eq('id', id)
-      .select('*')
-      .single()
-
-    if (error) throw error
-    const index = state.users.findIndex((u) => u.id === id)
-    if (index >= 0) state.users[index] = toUser(data)
-    return true
+  if (!hasSupabase) {
+    throw new Error('Supabase is not configured')
   }
 
-  const user = await request(`/registrations/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(payload),
-  })
+  const existing = getUserById(id)
+  if (!existing) return false
+  const mergedProfile = { ...(existing.profile ?? {}), ...(payload.profile ?? {}) }
+
+  const { data, error } = await supabase
+    .from('registrations')
+    .update({
+      display_name: sanitizeText(payload.displayName ?? existing.displayName),
+      email: sanitizeText(payload.email ?? existing.email),
+      phone: sanitizeText(payload.phone ?? existing.phone),
+      profile_json: mergedProfile,
+      admin_note: sanitizeText(payload.adminNote ?? existing.adminNote),
+      updated_at: nowIso(),
+    })
+    .eq('id', id)
+    .select('*')
+    .single()
+
+  if (error) throw error
   const index = state.users.findIndex((u) => u.id === id)
-  if (index >= 0) state.users[index] = user
+  if (index >= 0) state.users[index] = toUser(data)
   return true
 }
 
 const setStatus = async (id, status) => {
-  if (hasSupabase) {
-    const timestamp = nowIso()
-    const updatePayload = {
-      status,
-      updated_at: timestamp,
-      approved_at: status === 'approved' ? timestamp : null,
-      rejected_at: status === 'rejected' ? timestamp : null,
-    }
-
-    const { data, error } = await supabase
-      .from('registrations')
-      .update(updatePayload)
-      .eq('id', id)
-      .select('*')
-      .single()
-    if (error) throw error
-
-    const index = state.users.findIndex((u) => u.id === id)
-    if (index >= 0) state.users[index] = toUser(data)
-    return true
+  if (!hasSupabase) {
+    throw new Error('Supabase is not configured')
   }
 
-  const user = await request(`/registrations/${id}/status`, {
-    method: 'PATCH',
-    body: JSON.stringify({ status }),
-  })
+  const timestamp = nowIso()
+  const updatePayload = {
+    status,
+    updated_at: timestamp,
+    approved_at: status === 'approved' ? timestamp : null,
+    rejected_at: status === 'rejected' ? timestamp : null,
+  }
+
+  const { data, error } = await supabase
+    .from('registrations')
+    .update(updatePayload)
+    .eq('id', id)
+    .select('*')
+    .single()
+  if (error) throw error
+
   const index = state.users.findIndex((u) => u.id === id)
-  if (index >= 0) state.users[index] = user
+  if (index >= 0) state.users[index] = toUser(data)
   return true
 }
 
 const approveUser = async (id) => setStatus(id, 'approved')
 const rejectUser = async (id) => setStatus(id, 'rejected')
 
+// Get users filtered by type and status (approved by default)
+// Returns a computed that auto-updates when store.users changes
+const approvedUsersByType = (type) => {
+  return computed(() => {
+    return state.users
+      .filter((user) => user.type === type && user.status === 'approved')
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  })
+}
+
 const sendAdminMessage = async (id, text) => {
   if (!text?.trim()) return false
-
-  if (hasSupabase) {
-    const existing = getUserById(id)
-    if (!existing) return false
-
-    const messages = [
-      {
-        id: createId(),
-        from: 'admin',
-        text: sanitizeText(text),
-        at: nowIso(),
-      },
-      ...(existing.messages ?? []),
-    ]
-
-    const { data, error } = await supabase
-      .from('registrations')
-      .update({
-        messages_json: messages,
-        updated_at: nowIso(),
-      })
-      .eq('id', id)
-      .select('*')
-      .single()
-
-    if (error) throw error
-    const index = state.users.findIndex((u) => u.id === id)
-    if (index >= 0) state.users[index] = toUser(data)
-    return true
+  if (!hasSupabase) {
+    throw new Error('Supabase is not configured')
   }
 
-  const user = await request(`/registrations/${id}/messages`, {
-    method: 'POST',
-    body: JSON.stringify({ text }),
-  })
+  const existing = getUserById(id)
+  if (!existing) return false
+
+  const messages = [
+    {
+      id: createId(),
+      from: 'admin',
+      text: sanitizeText(text),
+      at: nowIso(),
+    },
+    ...(existing.messages ?? []),
+  ]
+
+  const { data, error } = await supabase
+    .from('registrations')
+    .update({
+      messages_json: messages,
+      updated_at: nowIso(),
+    })
+    .eq('id', id)
+    .select('*')
+    .single()
+
+  if (error) throw error
   const index = state.users.findIndex((u) => u.id === id)
-  if (index >= 0) state.users[index] = user
+  if (index >= 0) state.users[index] = toUser(data)
   return true
 }
 
 const loadOpportunities = async () => {
-  if (hasSupabase) {
-    const { data, error } = await supabase.from('opportunities').select('*').order('created_at', { ascending: false })
-    if (error) {
-      state.opportunities = []
-      return
-    }
-    state.opportunities = (data ?? []).map(toOpportunity)
+  if (!hasSupabase) {
+    state.opportunities = []
     return
   }
 
-  try {
-    const raw = localStorage.getItem(OPPORTUNITIES_KEY)
-    state.opportunities = raw ? JSON.parse(raw) : []
-  } catch (_error) {
+  const { data, error } = await supabase.from('opportunities').select('*').order('created_at', { ascending: false })
+  if (error) {
     state.opportunities = []
+    return
   }
+  state.opportunities = (data ?? []).map(toOpportunity)
+}
+
+// Get opportunities filtered by audience
+const opportunitiesByAudience = (audience) => {
+  return computed(() => {
+    return state.opportunities.filter((item) => item.audience === audience)
+  })
 }
 
 const persistOpportunities = () => {
@@ -278,66 +243,45 @@ const persistOpportunities = () => {
 const addOpportunity = async ({ title, audience, organization = '', location = '', deadline = '', link = '', details = '', createdBy = null }) => {
   const trimmedTitle = title?.trim()
   if (!trimmedTitle) return null
-
-  if (hasSupabase) {
-    const payload = {
-      title: trimmedTitle,
-      audience: audience || 'all',
-      organization: organization.trim(),
-      location: location.trim(),
-      deadline: deadline || null,
-      link: link.trim(),
-      details: details.trim(),
-      created_by: createdBy,
-      created_at: nowIso(),
-    }
-
-    const { data, error } = await supabase.from('opportunities').insert(payload).select('*').single()
-    if (error) throw error
-    const item = toOpportunity(data)
-    state.opportunities.unshift(item)
-    return item
+  if (!hasSupabase) {
+    throw new Error('Supabase is not configured')
   }
 
-  const id = createId()
-  const opportunity = {
-    id,
+  const payload = {
     title: trimmedTitle,
     audience: audience || 'all',
     organization: organization.trim(),
     location: location.trim(),
-    deadline,
+    deadline: deadline || null,
     link: link.trim(),
     details: details.trim(),
-    createdAt: nowIso(),
-    createdBy,
+    created_by: createdBy,
+    created_at: nowIso(),
   }
 
-  state.opportunities.unshift(opportunity)
-  persistOpportunities()
-  return opportunity
+  const { data, error } = await supabase.from('opportunities').insert(payload).select('*').single()
+  if (error) throw error
+  const item = toOpportunity(data)
+  state.opportunities.unshift(item)
+  return item
 }
 
 const removeOpportunity = async (id) => {
-  if (hasSupabase) {
-    const { error } = await supabase.from('opportunities').delete().eq('id', id)
-    if (error) throw error
-    const index = state.opportunities.findIndex((item) => item.id === id)
-    if (index >= 0) state.opportunities.splice(index, 1)
-    return true
+  if (!hasSupabase) {
+    throw new Error('Supabase is not configured')
   }
 
+  const { error } = await supabase.from('opportunities').delete().eq('id', id)
+  if (error) throw error
   const index = state.opportunities.findIndex((item) => item.id === id)
-  if (index < 0) return false
-  state.opportunities.splice(index, 1)
-  persistOpportunities()
+  if (index >= 0) state.opportunities.splice(index, 1)
   return true
 }
 
 const loadAdmins = async () => {
   if (!hasSupabase) {
-    state.admins = [{ id: 'local-admin', email: 'admin@local', displayName: 'Local Admin', isActive: true }]
-    return state.admins
+    state.admins = []
+    return []
   }
 
   const { data, error } = await supabase.from('admins').select('*').eq('is_active', true).order('created_at', { ascending: false })
@@ -359,11 +303,7 @@ const loadAdmins = async () => {
 const verifyAdmin = async (passcode) => {
   const trimmedPasscode = sanitizeText(passcode)
   if (!trimmedPasscode) return null
-
   if (!hasSupabase) {
-    if (trimmedPasscode === 'admin123') {
-      return { id: 'local-admin', email: 'admin@local', displayName: 'Local Admin' }
-    }
     return null
   }
 
@@ -386,7 +326,7 @@ const verifyAdmin = async (passcode) => {
 
 const initializeAdminAuth = async () => {
   if (!hasSupabase) {
-    return localStorage.getItem('smme_admin_logged_in') === 'true'
+    return false
   }
 
   const { data, error } = await supabase.auth.getSession()
@@ -425,14 +365,7 @@ const signInAdmin = async ({ email, password }) => {
   const cleanEmail = sanitizeText(email).toLowerCase()
   const cleanPassword = sanitizeText(password)
   if (!cleanEmail || !cleanPassword) return null
-
   if (!hasSupabase) {
-    if (cleanPassword === 'admin123') {
-      const localAdmin = { id: 'local-admin', email: cleanEmail, displayName: 'Local Admin' }
-      state.adminSession = localAdmin
-      localStorage.setItem('smme_admin_logged_in', 'true')
-      return localAdmin
-    }
     return null
   }
 
@@ -504,46 +437,36 @@ const stopRealtime = () => {
   }
 }
 
-const usersByType = (type) => state.users.filter((user) => user.type === type)
-const approvedUsersByType = (type) => state.users.filter((user) => user.type === type && user.status === 'approved')
-const opportunitiesByAudience = (audience) =>
-  state.opportunities.filter((item) => item.audience === 'all' || item.audience === audience)
-
-const stats = computed(() => {
-  const total = state.users.length
-  const pending = state.users.filter((u) => u.status === 'pending').length
-  const approved = state.users.filter((u) => u.status === 'approved').length
-  const rejected = state.users.filter((u) => u.status === 'rejected').length
-  const smmes = state.users.filter((u) => u.type === 'smmes').length
-  const professionals = state.users.filter((u) => u.type === 'professionals').length
-  const jobseekers = state.users.filter((u) => u.type === 'jobseekers').length
-
-  return { total, pending, approved, rejected, smmes, professionals, jobseekers }
-})
-
-export const useRegistrationStore = () => ({
-  state,
-  stats,
-  hasSupabase,
-  initializeAdminAuth,
-  signInAdmin,
-  signOutAdmin,
-  loadUsers,
-  startRealtime,
-  stopRealtime,
-  loadAdmins,
-  verifyAdmin,
-  loadOpportunities,
-  refreshUsers,
-  addRegistration,
-  getUserById,
-  updateUserProfile,
-  approveUser,
-  rejectUser,
-  sendAdminMessage,
-  usersByType,
-  approvedUsersByType,
-  opportunitiesByAudience,
-  addOpportunity,
-  removeOpportunity,
-})
+export const useRegistrationStore = () => {
+  return {
+    state: state,
+    users: computed(() => state.users),
+    opportunities: computed(() => state.opportunities),
+    admins: computed(() => state.admins),
+    adminSession: computed(() => state.adminSession),
+    loading: computed(() => state.loading),
+    loaded: computed(() => state.loaded),
+    error: computed(() => state.error),
+    loadUsers,
+    refreshUsers,
+    addRegistration,
+    getUserById,
+    updateUserProfile,
+    setStatus,
+    approveUser,
+    rejectUser,
+    approvedUsersByType,
+    sendAdminMessage,
+    loadOpportunities,
+    opportunitiesByAudience,
+    addOpportunity,
+    removeOpportunity,
+    loadAdmins,
+    verifyAdmin,
+    initializeAdminAuth,
+    signInAdmin,
+    signOutAdmin,
+    startRealtime,
+    stopRealtime,
+  }
+}

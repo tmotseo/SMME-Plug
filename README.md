@@ -1,61 +1,82 @@
 # SMME-Plug
 
-This template should help get you started developing with Vue 3 in Vite.
+A web application connecting SMMEs (Small, Medium, and Micro Enterprises) with professionals and job seekers.
 
-## Recommended IDE Setup
+## Project Structure
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
+```
+smme-plug/
+├── src/                    # Frontend (Vue.js)
+│   ├── components/         # Vue components
+│   ├── pages/              # Page components
+│   ├── stores/             # Pinia/Vue stores (state management)
+│   ├── lib/                # Supabase client
+│   └── router/             # Vue Router configuration
+│
+├── server/                 # Backend (Express.js API)
+│   └── index.js            # Express server with Supabase
+│
+├── supabase/               # Supabase migrations
+│   └── migrations/
+│
+└── public/                 # Static assets
 ```
 
-### Compile and Hot-Reload for Development
+## Technology Stack
+
+- **Frontend**: Vue 3 + Vite + Vue Router
+- **Backend**: Express.js
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: Supabase Auth
+
+## Development
+
+### Prerequisites
+
+- Node.js 20+
+- Supabase account
+
+### Frontend Development
 
 ```sh
+# Install dependencies
+npm install
+
+# Start frontend development server
 npm run dev
 ```
 
-### Compile and Minify for Production
+### Backend Development
 
 ```sh
-npm run build
+# Start backend API server (requires Supabase credentials)
+npm run server
 ```
 
-## Supabase Realtime Database Setup
-
-This project supports Supabase for realtime storage of:
-
-- Admin details (`admins`)
-- User registrations (`registrations`)
-- Opportunities (`opportunities`)
- - Admin authentication via Supabase Auth (email/password)
-
-### 1. Configure environment
-
-Copy `.env.example` to `.env` and set:
+### Full Stack Development
 
 ```sh
-VITE_SUPABASE_URL=...
-VITE_SUPABASE_ANON_KEY=...
+# Run both frontend and backend concurrently
+npm run dev:full
 ```
 
-### 2. Apply database schema
+## Supabase Setup
+
+### 1. Configure Environment Variables
+
+Copy `.env.example` to `.env` and set your Supabase credentials:
+
+```sh
+# Frontend - Supabase Client
+VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+
+# Backend - Express Server
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_SERVICE_KEY=your-service-role-key
+```
+
+### 2. Apply Database Schema
 
 Requires Supabase CLI.
 
@@ -64,30 +85,43 @@ npm run db:supabase:link
 npm run db:supabase:push
 ```
 
-Migration file:
+Migration files are in `supabase/migrations/`:
 
-- `supabase/migrations/20260303_001_init.sql`
+- `20260303_001_init.sql` - Core tables (registrations, opportunities, admins)
+- `20260303_002_admin_auth.sql` - Admin authentication
 
-### 3. (Optional) Generate TypeScript database types
+### 3. Generate TypeScript Types (Optional)
 
 ```sh
 npm run db:supabase:types
 ```
 
-### 4. Hosting deployment script
+## Deployment
 
-Use:
+### Frontend Build
 
 ```sh
 npm run deploy:build
 ```
 
-Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in your hosting provider environment variables.
+Set these environment variables in your hosting provider:
 
-### 5. Configure Admin Auth (email/password)
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
 
-1. In Supabase dashboard, create an Auth user (email/password).
-2. Add the same email in `public.admins` and mark it active.
+### Backend Deployment
+
+Deploy the Express server separately with:
+
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_KEY`
+
+## Authentication
+
+### Admin Authentication
+
+1. In Supabase Dashboard → Authentication → Users, create a user with email/password
+2. Add the same email to the `public.admins` table and mark it active
 
 Example SQL:
 
@@ -98,3 +132,18 @@ on conflict (email) do update set is_active = true;
 ```
 
 The app signs in with Supabase Auth, then verifies the signed-in email exists in `public.admins` as active.
+
+## API Endpoints
+
+The backend provides these RESTful endpoints:
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/health` | Health check |
+| GET | `/api/registrations` | List all registrations |
+| GET | `/api/registrations/:id` | Get single registration |
+| POST | `/api/registrations` | Create registration |
+| PUT | `/api/registrations/:id` | Update registration |
+| PATCH | `/api/registrations/:id/status` | Update status |
+| POST | `/api/registrations/:id/messages` | Add message |
+| GET | `/api/stats` | Get statistics |
